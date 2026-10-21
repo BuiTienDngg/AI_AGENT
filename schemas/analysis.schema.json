@@ -1,0 +1,123 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "game_title": {
+      "type": "string"
+    },
+    "genre": {
+      "type": "string"
+    },
+    "gameplay_summary": {
+      "type": "string"
+    },
+    "observed_facts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unverified_mechanics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "research_topics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "image_search_topics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "video_frame_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "game_objects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "player",
+              "enemy",
+              "obstacle",
+              "collectible",
+              "power_up",
+              "terrain",
+              "decoration",
+              "interactive",
+              "ui",
+              "other"
+            ]
+          },
+          "appearance": {
+            "type": "string"
+          },
+          "observed_behavior": {
+            "type": "string"
+          },
+          "frame_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          },
+          "needs_confirmation": {
+            "type": "boolean"
+          },
+          "question": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "category",
+          "appearance",
+          "observed_behavior",
+          "frame_ids",
+          "confidence",
+          "needs_confirmation",
+          "question"
+        ]
+      }
+    }
+  },
+  "required": [
+    "game_title",
+    "genre",
+    "gameplay_summary",
+    "observed_facts",
+    "unverified_mechanics",
+    "research_topics",
+    "image_search_topics",
+    "video_frame_ids",
+    "game_objects"
+  ]
+}

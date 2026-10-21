@@ -1,0 +1,30 @@
+{
+  "publisher": "Slope3",
+  "brand_website": "https://slope3.com/",
+  "brand_role": "developer",
+  "developer_authorship_confirmed": true,
+  "concept_narrative_authorized": true,
+  "language": "en-US",
+  "frames_per_video": 16,
+  "object_review_mode": "auto",
+  "min_detected_objects": 8,
+  "frames_in_article": 4,
+  "max_video_minutes": 45,
+  "commons_images": 2,
+  "min_text_sources": 4,
+  "min_citation_mentions": 6,
+  "max_repair_rounds": 2,
+  "max_translation_attempts": 2,
+  "codex_binary": "codex",
+  "codex_model": "",
+  "network_timeout_seconds": 20,
+  "max_web_sources": 14,
+  "research_academic_queries": [
+    "Ryan Rigby Przybylski 2006 motivational pull video games self determination",
+    "Sweetser Wyeth 2005 GameFlow model evaluating player enjoyment",
+    "Malone 1981 what makes computer games fun challenge curiosity"
+  ],
+  "required_sections": [
+    "Concept and Inspiration", "Story", "Gameplay", "Visual Style", "Standout Features", "Controls"
+  ]
+}

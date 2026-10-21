@@ -1,0 +1,113 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "meta_title": {
+      "type": "string"
+    },
+    "meta_description": {
+      "type": "string"
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/section"
+      }
+    }
+  },
+  "$defs": {
+    "paragraph": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "image_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "image_captions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "image_id": {
+                "type": "string"
+              },
+              "caption": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "image_id",
+              "caption"
+            ]
+          }
+        }
+      },
+      "required": [
+        "text",
+        "image_ids",
+        "image_captions"
+      ]
+    },
+    "subsection": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "heading": {
+          "type": "string"
+        },
+        "paragraphs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/paragraph"
+          }
+        }
+      },
+      "required": [
+        "heading",
+        "paragraphs"
+      ]
+    },
+    "section": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "heading": {
+          "type": "string"
+        },
+        "paragraphs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/paragraph"
+          }
+        },
+        "subsections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/subsection"
+          }
+        }
+      },
+      "required": [
+        "heading",
+        "paragraphs",
+        "subsections"
+      ]
+    }
+  },
+  "required": [
+    "title",
+    "meta_title",
+    "meta_description",
+    "sections"
+  ]
+}

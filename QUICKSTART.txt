@@ -1,0 +1,31 @@
+CODEX GAME SEO OFFICE v1 — QUICK START (WINDOWS)
+
+1. Install Python 3.10+, FFmpeg (incl. ffprobe), Codex CLI.
+   npm install -g @openai/codex
+   codex                 (Sign in with ChatGPT)
+
+2. Open this folder in VS Code terminal:
+   py -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   python -m pip install -r requirements.txt
+   python run.py doctor
+
+3. Run with a real MP4:
+   python run.py run --video "D:\Videos\your_game.mp4" --out ".\runs\game1"
+
+4. Output:
+   .\runs\game1\output\<game>_slope3_en_US.docx
+   .\runs\game1\output\<game>_slope3_vi_VN.docx
+
+5. If failed:
+   inspect runs\game1\qa_report.json or logs\codex_*.log
+   python run.py run --video "D:\Videos\your_game.mp4" --out ".\runs\game1" --resume
+
+NO GPT/GEMINI/GROQ/OPENROUTER API KEY.
+Codex CLI account usage limits apply; public web search APIs need Internet.
+See README_VI.md for setup, safety rules, limitations and source verification.
+
+Current output: exactly two Word documents (EN + VI), with embedded images.
+Export cached articles without rewriting: python run.py export --run-dir ".\runs\game1"
+An unchanged, verified translation is reused without another Codex call.
+Codex token report: <run>/token_usage.json + <run>/token_usage.md

@@ -1,0 +1,5 @@
+Read analysis.json and sources.json in the current run directory. Produce a concise evidence matrix organized by real-world context, player psychology, and genre/competitor comparisons.
+
+Read brand_context.json. Prioritize a coherent real-world context that can lead into our game concept and visible design choices. Separate external factual support from the team's authorized creative intention. A study about player motivation supports its actual findings, not proof that our game achieves a psychological benefit or evidence of our development history. Exclude unrelated sources rather than padding the matrix.
+
+You MUST use **only source IDs that appear in sources.json**. For each claim give a SHORT supporting_excerpt that is a verbatim substring of the source excerpt. Do not create bibliographic facts, game history or URLs. Do not use sources with evidence_quality="metadata_only" to make substantive claims. If no scholarly abstract supports a claim, omit it rather than fabricating support. Keep topics grounded in the video; write in American English. Return only notes.schema.json JSON.

@@ -1,0 +1,11 @@
+{
+  "type":"object","additionalProperties":false,
+  "properties":{
+    "pass_editorial":{"type":"boolean"},
+    "issues":{"type":"array","items":{"type":"object","additionalProperties":false,
+      "properties":{"path":{"type":"string"},"problem":{"type":"string"},"severity":{"type":"string"},"suggestion":{"type":"string"}},
+      "required":["path","problem","severity","suggestion"]}},
+    "strengths":{"type":"array","items":{"type":"string"}}
+  },
+  "required":["pass_editorial","issues","strengths"]
+}

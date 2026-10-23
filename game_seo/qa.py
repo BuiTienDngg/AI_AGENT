@@ -22,7 +22,22 @@ def walk_paragraphs(article):
                 yield f'sections[{si}].subsections[{ui}].paragraphs[{pi}]', sec['heading'], para
 
 
+def normalize_paragraph_path(path):
+    """Convert accepted model-output paths to the canonical internal form."""
+    if not isinstance(path, str):
+        raise ValueError("Paragraph path must be a string")
+    path = path.strip()
+    for prefix in ("article.json.", "article."):
+        if path.startswith(prefix):
+            path = path[len(prefix):]
+            break
+    if not re.fullmatch(r"sections\[\d+\](?:\.subsections\[\d+\])?\.paragraphs\[\d+\]", path):
+        raise ValueError(f"Unsupported paragraph path: {path}")
+    return path
+
+
 def get_para_by_path(article, path):
+    path = normalize_paragraph_path(path)
     if not re.fullmatch(r'sections\[\d+\](?:\.subsections\[\d+\])?\.paragraphs\[\d+\]', path):
         raise ValueError(f'Unsupported paragraph path: {path}')
     cur = article
@@ -132,6 +147,7 @@ def apply_patches(article, patches):
         path = edit.get('path', '')
         if not path:
             continue
+        path = normalize_paragraph_path(path)
         para = get_para_by_path(updated, path)
         text = edit.get('text', '')
         ids = edit.get('image_ids', para.get('image_ids', []))

@@ -7,7 +7,7 @@ import time
 import os
 from pathlib import Path
 from .core import ROOT, load_json, save_json, trim
-from .qa import walk_paragraphs, get_para_by_path, validate, apply_patches, TOKEN_PATTERN
+from .qa import walk_paragraphs, get_para_by_path, normalize_paragraph_path, validate, apply_patches, TOKEN_PATTERN
 from .usage import extract_usage, record_codex_call
 from .brand import brand_context
 from .writing import STYLE_FILE
@@ -186,8 +186,17 @@ def build_repair_context(article, report, critique, sources, images, frames, cfg
     def request_path(path):
         if not isinstance(path, str):
             return
+        if path.startswith('article.json.'):
+            path=path[len('article.json.'):]
+        elif path.startswith('article.'):
+            path=path[len('article.'):]
         if '.paragraphs[' in path:
-            requested.append(path)
+            try:
+                path=normalize_paragraph_path(path)
+                get_para_by_path(article,path)
+                requested.append(path)
+            except (ValueError,KeyError,IndexError,TypeError):
+                pass
         elif re.fullmatch(r'sections\[\d+\](?:\.subsections\[\d+\])?', path):
             requested.extend(p[0] for p in paragraphs if p[0].startswith(path + '.paragraphs[')
                              or p[0].startswith(path + '.subsections['))

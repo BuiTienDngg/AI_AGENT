@@ -1,3 +1,6 @@
+# Context access (runtime optimization)
+Read `stage_context_translate.json` once. The bundle uses original filenames as keys and contains their complete contents. References below to individual JSON/text inputs mean their entries in that bundle. Do not redundantly run file listings, read the same file again, or perform ad-hoc schema validation: the CLI enforces `--output-schema` and Python handles QA. If bundle data is missing, consult the original input file only when essential. Keep all evidence, source and editorial rules below unchanged.
+
 # Task: Translate the final, approved American English game article to Vietnamese
 
 Read `article.json` — it is the SINGLE authoritative source article. Translate ONLY AFTER the English article has passed all editorial QA. Preserve the existing article data structure, returning the exact JSON object shape specified by translation.schema.json.
@@ -27,3 +30,7 @@ Invariant checks (STRICT):
 - All translated values must be valid JSON strings; no Markdown outside the JSON object.
 
 Only write the JSON translation as prescribed by the schema. Codex CLI will save it to translation_vi.json.
+Preserve the softer, flowing narrative of Concept and Inspiration in natural Vietnamese, with logical paragraph transitions. Preserve the exact supported win/loss conditions, rewards and consequences; do not add penalties, victory states or competitor claims. Translate feature comparisons with their original degree of confidence: intended visual liveliness is not proof that our game is objectively more enjoyable.
+
+Controls must remain directly usable by a Vietnamese beginner: preserve exact key/button labels and distinguish nhấn, nhấn giữ, thả chuột, chạm, chạm giữ, kéo, vuốt and nhấc tay. Keep the target -> input -> movement -> result sequence clear, separately for PC and mobile. Do not add keys or gestures to improve fluency.
+

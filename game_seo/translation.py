@@ -15,7 +15,7 @@ HEADINGS_VI = {
 }
 
 
-def validate_translation(en, vi):
+def validate_translation(en, vi, *, localize_title=False):
     """Hard gate: aligned sections/paragraphs, citation tokens and media IDs.
 
     Does not claim to verify translation quality or meaning; Codex performs that review.
@@ -28,7 +28,7 @@ def validate_translation(en, vi):
     for field in ('title', 'meta_title', 'meta_description'):
         if not isinstance(vi.get(field), str) or not vi[field].strip():
             error(field, 'TRANSLATION_EMPTY_METADATA', field)
-    if vi.get('title') != en.get('title'):
+    if not localize_title and vi.get('title') != en.get('title'):
         # Game name/title is an identity; prevent invention or renaming.
         error('title', 'GAME_TITLE_CHANGED', 'Keep the source article game title unchanged')
     en_sec = en.get('sections', [])

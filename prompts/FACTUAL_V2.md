@@ -1,0 +1,5 @@
+Read stage_context_factual.json once. Independently review gameplay, publisher authenticity, evidence, SEO and media. Do not read literary_review.json or Chief artifacts. Return editorial_review.schema.json.
+Score exact metrics accuracy and seo_integration, with actual paragraph paths and verbatim quotes for each score. Targets in editorial_policy are thresholds, never scores to assign automatically.
+Check every creative detail against fact_ledger, owner inputs, sources and actual registered frames. Unsupported gameplay, origin, lore, sounds, rewards, penalties or named competitor claims block approval even with excellent prose.
+Check source entailment/relevance, screenshot purpose/caption accuracy, story status, exact controls, objective/outcome coverage, natural keywords, useful localized-ready metadata and logic. External context is optional; do not demand four sources, six citations or Commons images.
+Identify exact failed paragraphs and factual corrections. Quote affected text and offer evidence-grounded changes, not invented replacement facts. Pass only when factuality and SEO both meet targets with evidence.

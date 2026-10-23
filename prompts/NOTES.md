@@ -1,5 +1,15 @@
+# Context access (runtime optimization)
+Read `stage_context_notes.json` once. The bundle uses original filenames as keys and contains their complete contents. References below to individual JSON/text inputs mean their entries in that bundle. Do not redundantly run file listings, read the same file again, or perform ad-hoc schema validation: the CLI enforces `--output-schema` and Python handles QA. If bundle data is missing, consult the original input file only when essential. Keep all evidence, source and editorial rules below unchanged.
+
 Read analysis.json and sources.json in the current run directory. Produce a concise evidence matrix organized by real-world context, player psychology, and genre/competitor comparisons.
 
 Read brand_context.json. Prioritize a coherent real-world context that can lead into our game concept and visible design choices. Separate external factual support from the team's authorized creative intention. A study about player motivation supports its actual findings, not proof that our game achieves a psychological benefit or evidence of our development history. Exclude unrelated sources rather than padding the matrix.
 
 You MUST use **only source IDs that appear in sources.json**. For each claim give a SHORT supporting_excerpt that is a verbatim substring of the source excerpt. Do not create bibliographic facts, game history or URLs. Do not use sources with evidence_quality="metadata_only" to make substantive claims. If no scholarly abstract supports a claim, omit it rather than fabricating support. Keep topics grounded in the video; write in American English. Return only notes.schema.json JSON.
+
+Keep each claim to one supported fact, with a short contiguous quote (usually 8-25 words). Do not join nonadjacent sentences into a supposed verbatim excerpt. Cover every relevant cultural or mathematical context source where it supplies a useful distinct fact; retain the relevance rule and omit unrelated sources.
+# Local owner review
+Return unsupported_questions as concise English questions, and unsupported_questions_vi as faithful natural Vietnamese translations in exactly the same order and count. Both appear side by side in the local admin. Produce both in this same response. Do not ask for product facts already supplied in game_brief.json or confirmed owner_answers.json. Owner answers can establish game details, but cannot replace independent sources for historical or scientific claims. Drop an unsupported research claim rather than asking the owner to certify it as research.
+
+Check whether objective, win/endless condition, success reward, loss trigger and loss consequence/restart are explicitly supported by video or owner confirmations. Ask concise bilingual owner questions for material unknowns before drafting; do not ask questions already answered in saved owner knowledge. When a named competitor comparison is planned, retain evidence supporting the exact compared feature. Without that evidence, recommend a generic presentation comparison rather than a factual claim about the competitor.
+

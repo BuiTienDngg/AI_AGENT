@@ -1,0 +1,240 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "game_title": {
+      "type": "string"
+    },
+    "genre": {
+      "type": "string"
+    },
+    "gameplay_summary": {
+      "type": "string"
+    },
+    "observed_facts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unverified_mechanics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unverified_mechanics_vi": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "research_topics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "image_search_topics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "video_frame_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "game_objects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "name_vi": {
+            "type": "string"
+          },
+          "appearance_vi": {
+            "type": "string"
+          },
+          "observed_behavior_vi": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "player",
+              "enemy",
+              "obstacle",
+              "collectible",
+              "power_up",
+              "terrain",
+              "decoration",
+              "interactive",
+              "ui",
+              "other"
+            ]
+          },
+          "appearance": {
+            "type": "string"
+          },
+          "observed_behavior": {
+            "type": "string"
+          },
+          "frame_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          },
+          "needs_confirmation": {
+            "type": "boolean"
+          },
+          "question": {
+            "type": "string"
+          },
+          "question_vi": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "name_vi",
+          "appearance_vi",
+          "observed_behavior_vi",
+          "category",
+          "appearance",
+          "observed_behavior",
+          "frame_ids",
+          "confidence",
+          "needs_confirmation",
+          "question",
+          "question_vi"
+        ]
+      }
+    },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "frame_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "description",
+          "frame_ids"
+        ]
+      }
+    },
+    "mechanic_relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "observation_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "SUPPORTED_INFERENCE",
+              "UNVERIFIED"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "description",
+          "observation_ids",
+          "status"
+        ]
+      }
+    },
+    "editorial_insights": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "observation_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "classification": {
+            "type": "string",
+            "enum": [
+              "SUPPORTED_INFERENCE",
+              "EDITORIAL_DESCRIPTION",
+              "UNVERIFIED"
+            ]
+          }
+        },
+        "required": [
+          "description",
+          "observation_ids",
+          "classification"
+        ]
+      }
+    }
+  },
+  "required": [
+    "game_title",
+    "genre",
+    "gameplay_summary",
+    "observed_facts",
+    "unverified_mechanics",
+    "unverified_mechanics_vi",
+    "research_topics",
+    "image_search_topics",
+    "video_frame_ids",
+    "game_objects",
+    "observations",
+    "mechanic_relationships",
+    "editorial_insights"
+  ]
+}

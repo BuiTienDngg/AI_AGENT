@@ -60,3 +60,21 @@ These examples teach a writing style. Do not copy block-puzzle mechanics into an
 Treat an incomprehensible main rule, vague confirmed control, undefined object description, or unreadable translation as a blocking error, not a minor style warning. A correct fact or valid citation does not make an opaque sentence acceptable. Minor preferences remain warnings.
 
 For each problem, identify the exact paragraph and propose a concrete replacement using confirmed facts. Keep citations and media intact. Do not repair unclear writing by adding an unverified mechanic.
+## Section-specific tone and completeness
+
+Concept and Inspiration may be more lyrical and gentle than the instructional sections. Ground a small evocative image in sourced context, connect it to our creative idea and a concrete design choice, and end with the experience we intend to create. Carry an idea naturally between paragraphs. No ornamental fog, abrupt research digressions or invented studio history.
+
+Gameplay must help a newcomer understand the objective, how to succeed, the actual rewards, what ends the game and what happens after losing. An endless score game may have no final victory; confirm that rather than inventing one. Unknown rules require owner clarification, not assumptions. Keep gameplay and controls concrete even when the concept is poetic.
+
+Standout Features explains a specific supported difference and why it matters to the player. Distinguish visual 3D depth from mechanical layers or rotation. A generic 2D comparison can explain presentation; factual claims about a named competing game require evidence. Describe intended appeal naturally without asserting unmeasured superiority.
+
+## Controls: teach a first-time player
+
+Write Controls as a short practical walkthrough, with PC and Mobile subsections when both are supported. Start with the device and exact confirmed input. Explain where the player acts, whether to press, hold or release, which direction to move, and what happens on screen. Use a simple sequence the reader can perform on their first turn; connect it briefly to the objective explained in Gameplay.
+
+For keyboard play, name each confirmed key and its exact action, distinguishing a tap from holding only when known. For mouse play, name the confirmed mouse button, target, drag direction and release action. For touch play, distinguish tapping, holding, dragging, swiping and lifting the finger. Do not replace inputs with strategy such as planning space or reacting quickly. Do not copy the owner's long control notes verbatim; turn them into concise, natural instructions without changing their meaning.
+
+For an owner-confirmed drag-and-drop block game, a useful PC sequence is: move the pointer onto a block below the board, hold the left mouse button, drag the block over a suitable empty space and release the button to place it. The corresponding mobile sequence is: touch and hold a block, drag it with your finger onto the board, then lift your finger to place it. Use these details only when confirmed for this product. Add the confirmed clear-line result briefly so readers understand why they are placing blocks.
+
+Never add arrow keys, WASD, Space, right-click, rotation, pinch gestures, restart shortcuts, touch zones or unsupported platforms from genre conventions. A mouse-controlled game need not have keyboard mappings. If a necessary input is missing, ask the owner during analysis/notes instead of guessing. A new player should finish this section knowing exactly how to begin playing.
+

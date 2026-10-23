@@ -268,11 +268,11 @@ def export_html(article, sources, images, frames, outfile, lang="en-US"):
     return outfile
 
 
-def export_all(article, sources, images, frame_manifest, workdir, translation_vi=None):
+def export_all(article, sources, images, frame_manifest, workdir, translation_vi=None, *, editorial_v2=False):
     """Export exactly two Word documents from the approved, aligned EN/VI text."""
     if translation_vi is None:
         raise ValueError('translation_vi is required to create both English and Vietnamese Word documents')
-    alignment = validate_translation(article, translation_vi)
+    alignment = validate_translation(article, translation_vi,localize_title=editorial_v2)
     if not alignment['pass']:
         raise ValueError(f'VI translation failed structural QA: {alignment["issues"][:5]}')
     out = Path(workdir) / 'output'
@@ -283,4 +283,7 @@ def export_all(article, sources, images, frame_manifest, workdir, translation_vi
     # Files are only generated after translation consistency validation succeeds.
     export_docx(article, sources, images, frame_manifest['frames'], docx_path)
     export_docx(translation_vi, sources, images, frame_manifest['frames'], docx_vi, lang='vi-VN')
-    return {'docx_en': str(docx_path), 'docx_vi': str(docx_vi)}
+    files = {'docx_en': str(docx_path), 'docx_vi': str(docx_vi)}
+    from .result_bundle import build_result
+    build_result(article, translation_vi, images, frame_manifest, files, workdir)
+    return files

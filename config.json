@@ -1,5 +1,6 @@
 {
   "publisher": "Slope3",
+  "editorial_profile": "gameplay_first_v2",
   "brand_website": "https://slope3.com/",
   "brand_role": "developer",
   "developer_authorship_confirmed": true,
@@ -16,7 +17,7 @@
   "max_repair_rounds": 2,
   "max_translation_attempts": 2,
   "codex_binary": "codex",
-  "codex_model": "",
+  "codex_model": "gpt-6-sol",
   "network_timeout_seconds": 20,
   "max_web_sources": 14,
   "research_academic_queries": [
@@ -25,6 +26,11 @@
     "Malone 1981 what makes computer games fun challenge curiosity"
   ],
   "required_sections": [
-    "Concept and Inspiration", "Story", "Gameplay", "Visual Style", "Standout Features", "Controls"
+    "Concept and Inspiration",
+    "Story",
+    "Gameplay",
+    "Visual Style",
+    "Standout Features",
+    "Controls"
   ]
 }

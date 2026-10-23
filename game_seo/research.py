@@ -49,6 +49,24 @@ def academic_abstract(inverted_index):
 
 
 def search_wikipedia(query, limit=4, timeout=20):
+    # Short concept names often have an exact page. Full-text search for a
+    # long sentence can otherwise return unrelated pages containing its words.
+    query = query.strip()
+    if len(query.split()) <= 7 and not re.search(r'[:|"\n]', query):
+        direct = get_json(WIKIPEDIA_API, {
+            'action': 'query', 'format': 'json', 'titles': query,
+            'prop': 'extracts|info', 'exintro': 1, 'explaintext': 1,
+            'inprop': 'url', 'redirects': 1,
+        }, timeout)
+        exact = [p for p in direct.get('query', {}).get('pages', {}).values()
+                 if 'missing' not in p and len(plain(p.get('extract', ''))) >= 130]
+        if exact:
+            page = exact[0]
+            url = page.get('fullurl', '')
+            if public_url(url):
+                return [{'title': page['title'], 'url': canonical_url(url),
+                         'excerpt': trim(plain(page['extract']), 2200),
+                         'kind': 'encyclopedia', 'provider': 'Wikipedia', 'evidence_quality': 'overview'}]
     data = get_json(WIKIPEDIA_API, {
         'action': 'query', 'format': 'json', 'generator': 'search', 'gsrsearch': query,
         'gsrnamespace': 0, 'gsrlimit': limit, 'prop': 'extracts|info',
@@ -103,8 +121,12 @@ def source_queries(analysis, cfg):
     title = trim(analysis.get('game_title') or 'video game', 80)
     genre = trim(analysis.get('genre') or 'video game', 80)
     topics = [trim(x, 100) for x in analysis.get('research_topics', []) if isinstance(x, str)]
-    topics = topics[:4]
-    queries = topics + [f'{genre} video game', f'{title} game mechanics', f'{genre} gameplay design principles']
+    topics = topics[:5]
+    if cfg.get('editorial_profile')=='gameplay_first_v2':
+        return list(dict.fromkeys([f'{title} game mechanics']+topics[:2])),[]
+    queries = topics + [f'{genre} video game']
+    if title.casefold() not in ('unknown game', 'video game'):
+        queries.append(f'{title} game mechanics')
     # If relevant, Wikipedia provides general background; OpenAlex covers scholarly claims.
     return list(dict.fromkeys(queries))[:7], cfg['research_academic_queries'][:4]
 
@@ -117,6 +139,8 @@ def collect_text_sources(analysis, cfg, output_dir: Path):
     max_sources = int(cfg['max_web_sources'])
     def register(entries):
         for e in entries:
+            if len(sources) >= max_sources:
+                break
             url = canonical_url(e.get('url', ''))
             if not url or not public_url(url) or url in seen:
                 continue
@@ -129,7 +153,7 @@ def collect_text_sources(analysis, cfg, output_dir: Path):
             if len(sources) >= max_sources:
                 break
     for query in web_queries:
-        if len(sources) >= max(3, max_sources - 4):
+        if len(sources) >= min(max_sources, int(cfg.get('research_target_sources',3)) if cfg.get('editorial_profile')=='gameplay_first_v2' else int(cfg.get('min_text_sources',4))):
             break
         try:
             register(search_wikipedia(query, limit=3, timeout=cfg['network_timeout_seconds']))
@@ -146,7 +170,7 @@ def collect_text_sources(analysis, cfg, output_dir: Path):
         source['link_check'] = check_source_link(source['url'], timeout=min(7, cfg['network_timeout_seconds']))
     save_json(output_dir / 'sources.json', {'sources': sources, 'errors': errors, 'web_queries': web_queries,
                                               'academic_queries': academic_queries, 'created_at': utc_now()})
-    if not sources:
+    if not sources and cfg.get('editorial_profile')!='gameplay_first_v2':
         raise RuntimeError('No web sources retrieved. Inspect sources.json errors; this workflow never invents sources.')
     return sources
 
@@ -189,12 +213,47 @@ def commons_search(query, limit=15, timeout=20):
         if not author or len(author) > 260:
             continue
         out.append({'title': p.get('title', '').removeprefix('File:'), 'url': url,
+                    'description': plain(ext.get('ImageDescription', '')),
+                    'categories': plain(ext.get('Categories', '')),
                     'page_url': sourcepage, 'author': author, 'license': license_info[0],
                     'license_url': license_info[1],
                     'width': info.get('thumbwidth', info.get('width')), 'height': info.get('thumbheight', info.get('height')),
                     'original_url': original_url, 'original_bytes': info.get('size', 0),
                     'bytes': 0 if info.get('thumburl') else info.get('size', 0), 'search_query': query})
     return out
+
+
+def commons_topic_match(img, query):
+    """Require subject evidence, not search rank or generic color/style words.
+
+    This is a conservative metadata screen, not a replacement for editorial QA.
+    A licensed result can still be unrelated to the requested illustration.
+    """
+    ignored = {'a', 'an', 'the', 'of', 'and', 'in', 'on', 'with', 'for', 'photo', 'photos',
+               'photograph', 'photographs', 'image', 'images', 'wikimedia', 'commons',
+               'colorful', 'colourful', 'colored', 'coloured', 'bright', 'beautiful',
+               'three', 'two', 'dimensional', 'real', 'world'}
+    groups = {
+        'tessellation': {'tessellation', 'tessellated', 'tiling', 'tile', 'tiles', 'mosaic'},
+        'geometric': {'geometric', 'geometry', 'polygon', 'polygons'},
+        'tile': {'tile', 'tiles', 'tiling', 'mosaic', 'ceramic'},
+        'polyomino': {'polyomino', 'polyominoes', 'pentomino', 'pentominoes', 'tetromino', 'tetrominoes'},
+        'train': {'train', 'trains', 'locomotive', 'railway', 'railroad'},
+    }
+    tokens = set(re.findall(r'[a-z]{3,}', query.casefold())) - ignored
+    subject = ' '.join(str(img.get(key, '')) for key in ('title', 'description', 'categories')).casefold()
+    words = set(re.findall(r'[a-z]{3,}', subject))
+    matched = []
+    for term in sorted(tokens):
+        singular = term[:-1] if term.endswith('s') else term
+        aliases = groups.get(term) or groups.get(singular) or {term, singular}
+        if words & aliases:
+            matched.append(term)
+    required = min(2, len(tokens))
+    accepted = bool(tokens) and len(matched) >= required
+    return {'accepted': accepted, 'matched_terms': matched, 'required_matches': required,
+            'score': len(matched), 'method': 'subject_metadata_match',
+            'reason': '' if accepted else 'Insufficient concrete query subjects in title, description or categories'}
 
 
 def download_commons_image(img, folder, timeout=20):
@@ -236,20 +295,30 @@ def download_commons_image(img, folder, timeout=20):
 
 
 def collect_commons_images(analysis, cfg, output_dir: Path):
-    # Main queries are derived from the game; fixed fallback keeps generic urban imagery discoverable.
+    # Keep discovery tied to this game. A railway fallback made puzzle articles
+    # impossible to repair when the only second image was an unrelated train.
     topics = [trim(t, 85) for t in analysis.get('image_search_topics', []) if isinstance(t, str)][:5]
     if not topics:
         topics = [trim(t, 85) for t in analysis.get('research_topics', []) if isinstance(t, str)][:3]
-    queries = topics + [f'{trim(analysis.get("genre", "video game"), 60)} culture', 'urban commuter train Wikimedia Commons', 'city street art public photography']
+    queries = list(dict.fromkeys(re.sub(r'^Wikimedia\s+Commons\s*[:\-]?\s*', '', topic, flags=re.I).strip()
+                                for topic in topics if topic.strip()))
     target_count = cfg['commons_images']
     images, errors, used_pages = [], [], set()
     for q in list(dict.fromkeys(queries))[:8]:
         if len(images) >= target_count:
             break
         try:
-            for img in commons_search(q, timeout=cfg['network_timeout_seconds']):
+            candidates = commons_search(q, timeout=cfg['network_timeout_seconds'])
+            ranked = [(commons_topic_match(img, q), img) for img in candidates]
+            ranked.sort(key=lambda entry: entry[0]['score'], reverse=True)
+            for relevance, img in ranked:
                 if img['page_url'] in used_pages:
                     continue
+                if not relevance['accepted']:
+                    errors.append({'query': q, 'image': img['page_url'],
+                                   'reason': 'OFF_TOPIC_IMAGE', 'detail': relevance['reason']})
+                    continue
+                img['relevance'] = relevance
                 img['id'] = f'IMG{len(images)+1:03}'
                 try:
                     download_commons_image(img, output_dir / 'commons', timeout=cfg['network_timeout_seconds'])
@@ -262,5 +331,7 @@ def collect_commons_images(analysis, cfg, output_dir: Path):
             errors.append({'query': q, 'error': str(error)})
     save_json(output_dir / 'images.json', {'images': images, 'errors': errors, 'queries': queries, 'created_at': utc_now()})
     if len(images) < target_count:
-        raise RuntimeError(f'Only found {len(images)} of {target_count} licensed Commons images. See images.json for diagnostics.')
+        raise RuntimeError(f'Only found {len(images)} of {target_count} relevant licensed Commons images. '
+                           'Use short, game-relevant image_search_topics or research_plan.json image_queries, then resume. '
+                           'See images.json for diagnostics; unrelated stock images are not substituted.')
     return images

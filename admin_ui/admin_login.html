@@ -1,0 +1,9 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="office-token" content="{{ office_token }}"><meta name="admin-configured" content="{{ 'yes' if configured else 'no' }}">
+<title>Administrator · Game SEO Office</title><link rel="stylesheet" href="/static/app.css"><link rel="stylesheet" href="/static/accounts.css"><script src="/static/admin_login.js" defer></script></head>
+<body><main class="accounts-page"><nav class="accounts-nav"><a href="/accounts">← Codex Accounts</a><a href="/">Thư viện game</a></nav>
+<section class="account-card login-card"><div class="eyebrow">CODEX ACCOUNT MANAGEMENT</div><h1>{{ 'Đăng nhập quản trị' if configured else 'Thiết lập administrator' }}</h1>
+<p>{{ 'Nhập mật khẩu quản trị của ứng dụng local.' if configured else 'Đặt mật khẩu riêng cho trang quản trị. Đây không phải mật khẩu ChatGPT.' }}</p>
+<form id="admin-login-form"><label>Mật khẩu<input id="admin-password" type="password" minlength="12" maxlength="200" required autocomplete="{{ 'current-password' if configured else 'new-password' }}"></label>
+{% if not configured %}<label>Nhập lại mật khẩu<input id="admin-confirm" type="password" required minlength="12" maxlength="200" autocomplete="new-password"></label>{% endif %}
+<div id="login-error" class="notice error hidden" role="alert"></div><button class="button primary" type="submit">{{ 'Đăng nhập' if configured else 'Tạo admin local' }}</button></form></section></main></body></html>

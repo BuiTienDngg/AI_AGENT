@@ -92,7 +92,7 @@ class ObjectReviewForm:
     def refresh(self):
         self.tree.delete(*self.tree.get_children())
         for index, row in enumerate(self.rows):
-            status = row.get('question') or ('Cần xác nhận' if row.get('needs_confirmation') else 'Đã quan sát')
+            status = row.get('question_vi') or row.get('question') or ('Cần xác nhận' if row.get('needs_confirmation') else 'Đã quan sát')
             self.tree.insert('', 'end', iid=str(index), values=(row['name'], CATEGORY_LABELS.get(row.get('category'), 'Khác'), status))
 
     def select(self, event=None):
@@ -108,7 +108,8 @@ class ObjectReviewForm:
                 return
         self.editing = target
         row = self.rows[self.editing]
-        self.question.set('Cần xác nhận: ' + row['question'] if row.get('question') else 'Bạn có thể sửa tên, mô tả hoặc bổ sung cơ chế cho đối tượng này.')
+        question = row.get('question_vi') or row.get('question')
+        self.question.set('Cần xác nhận: ' + question if question else 'Bạn có thể sửa tên, mô tả hoặc bổ sung cơ chế cho đối tượng này.')
         self.name.set(row['name'])
         self.category.set(CATEGORY_LABELS.get(row.get('category'), 'Khác'))
         self.frames.set(', '.join(row.get('frame_ids', [])))

@@ -1,0 +1,279 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "context": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/claim"
+      }
+    },
+    "player_psychology": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/claim"
+      }
+    },
+    "genre_and_competitors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/claim"
+      }
+    },
+    "unsupported_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unsupported_questions_vi": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "editorial_brief": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "core_identity": {
+          "type": "string"
+        },
+        "central_tension": {
+          "type": "string"
+        },
+        "primary_appeal": {
+          "type": "string"
+        },
+        "distinctive_mechanics": {
+          "type": "string"
+        },
+        "sensory_details": {
+          "type": "string"
+        },
+        "emotional_possibilities": {
+          "type": "string"
+        },
+        "narrative_direction": {
+          "type": "string"
+        },
+        "search_intent": {
+          "type": "string"
+        },
+        "seo_title_direction": {
+          "type": "string"
+        },
+        "avoided_cliches": {
+          "type": "string"
+        },
+        "insights": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "SUPPORTED_INFERENCE",
+                  "EDITORIAL_DESCRIPTION"
+                ]
+              },
+              "fact_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "id",
+              "description",
+              "classification",
+              "fact_ids"
+            ]
+          }
+        },
+        "information_ownership": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fact_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "primary_section": {
+                "type": "string"
+              },
+              "allowed_references_elsewhere": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "fact_ids",
+              "primary_section",
+              "allowed_references_elsewhere"
+            ]
+          }
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "heading": {
+                "type": "string"
+              },
+              "purpose": {
+                "type": "string"
+              },
+              "key_information": {
+                "type": "string"
+              },
+              "insight": {
+                "type": "string"
+              },
+              "transition": {
+                "type": "string"
+              },
+              "avoid_repeating": {
+                "type": "string"
+              },
+              "opening": {
+                "type": "string"
+              },
+              "ending": {
+                "type": "string"
+              },
+              "image_reason": {
+                "type": "string"
+              },
+              "image_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "heading",
+              "purpose",
+              "key_information",
+              "insight",
+              "transition",
+              "avoid_repeating",
+              "opening",
+              "ending",
+              "image_reason",
+              "image_ids"
+            ]
+          }
+        },
+        "research_filter": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "source_id": {
+                "type": "string"
+              },
+              "fact": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              },
+              "evidence_type": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "string"
+              },
+              "relevance_to_game": {
+                "type": "string"
+              },
+              "potential_editorial_use": {
+                "type": "string"
+              },
+              "risk_of_overinterpretation": {
+                "type": "string"
+              },
+              "include": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "source_id",
+              "fact",
+              "source_url",
+              "evidence_type",
+              "confidence",
+              "relevance_to_game",
+              "potential_editorial_use",
+              "risk_of_overinterpretation",
+              "include"
+            ]
+          }
+        }
+      },
+      "required": [
+        "core_identity",
+        "central_tension",
+        "primary_appeal",
+        "distinctive_mechanics",
+        "sensory_details",
+        "emotional_possibilities",
+        "narrative_direction",
+        "search_intent",
+        "seo_title_direction",
+        "avoided_cliches",
+        "insights",
+        "information_ownership",
+        "sections",
+        "research_filter"
+      ]
+    }
+  },
+  "$defs": {
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "claim": {
+          "type": "string"
+        },
+        "source_id": {
+          "type": "string"
+        },
+        "supporting_excerpt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "claim",
+        "source_id",
+        "supporting_excerpt"
+      ]
+    }
+  },
+  "required": [
+    "context",
+    "player_psychology",
+    "genre_and_competitors",
+    "unsupported_questions",
+    "unsupported_questions_vi",
+    "editorial_brief"
+  ]
+}

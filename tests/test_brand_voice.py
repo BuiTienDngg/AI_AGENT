@@ -18,7 +18,7 @@ class BrandVoiceTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.folder = Path(self.tmp.name)
         self.article, self.sources, self.images, self.frames = fixtures(self.folder)
-        self.cfg = load_json(ROOT / 'config.json')
+        self.cfg = {**load_json(ROOT / 'config.json'),'editorial_profile':'legacy'}
         self.article['sections'][0]['paragraphs'][0]['text'] += (
             ' We developed our game around the rhythm of moving through an urban railway.'
         )

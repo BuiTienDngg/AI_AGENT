@@ -1,0 +1,4 @@
+Read stage_context_localization.json once. Independently compare approved English with Vietnamese as a bilingual factual and literary editor. Return editorial_review.schema.json.
+Score exact metrics accuracy, naturalness, localization, non_repetition; every score requires verbatim Vietnamese paragraph quotes, exact paragraph paths, a reason and specific revision if below target. Do not assign target scores by instruction.
+Check gameplay facts, numbers, keys/gestures, confirmed story, source claims, image/citation identity and proper game name across languages. Title/meta/headings should read naturally localized, not English left unchanged except proper names.
+Allow different syntax, idioms and transitions while preserving evidence/meaning. Flag calques, repetition, opaque object descriptions, lost causal relationships and newly introduced assertions. Use Vietnamese paragraph paths for all repairable issues. Unsupported assertions independently block approval.

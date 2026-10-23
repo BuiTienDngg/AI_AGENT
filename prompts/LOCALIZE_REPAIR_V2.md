@@ -1,0 +1,3 @@
+Read stage_context_localize_repair.json once. Return patches.schema.json.
+Revise ONLY the exact Vietnamese paragraph paths in repair_context.allowed_edits. article.json is the approved English factual authority; translation_vi.json is the Vietnamese target. Do not alter the English article.
+Resolve the cited factual/localization/naturalness errors with natural Vietnamese editorial prose. Keep factual scope, exact citation tokens and image IDs/order. Keep image captions aligned and natural. Do not touch passing paragraphs, add mechanics or invent lore. If no allowed edit can fix the problem, return edits=[].

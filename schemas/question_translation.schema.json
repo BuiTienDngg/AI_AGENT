@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "translations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {"id": {"type": "string"}, "question_vi": {"type": "string"}},
+        "required": ["id", "question_vi"]
+      }
+    }
+  },
+  "required": ["translations"]
+}

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="office-token" content="{{ office_token }}">
+  <meta name="management" content="{{ 'yes' if management else 'no' }}">
+  <title>Tài khoản Codex · Game SEO Office</title>
+  <link rel="icon" href="/static/favicon.svg">
+  <link rel="stylesheet" href="/static/app.css">
+  <link rel="stylesheet" href="/static/accounts.css">
+  <script src="/static/accounts.js" defer></script>
+</head>
+<body>
+<main class="accounts-page">
+  <nav class="accounts-nav"><a href="/">← Thư viện game</a><span>GAME SEO OFFICE / ADMIN</span></nav>
+  <header class="page-heading"><div><div class="eyebrow">THEO DÕI TÀI KHOẢN</div><h1>{{ 'Codex Account Management' if management else 'Codex Accounts' }}</h1><p>Quota, kết nối và lịch sử workflow của từng provider.</p></div>{% if management %}<div><button id="add-account" class="button primary">+ Thêm hồ sơ</button> <button id="logout-admin" class="button secondary">Đăng xuất</button></div>{% else %}<a class="button primary" href="/admin">Quản trị tài khoản</a>{% endif %}</header>
+  <div class="accounts-explainer"><strong>Đăng nhập Codex vẫn do CLI quản lý.</strong><p>Mỗi hồ sơ trỏ tới CODEX_HOME đã có; để trống để dùng hồ sơ hiện tại. Số đo thuộc toàn tài khoản, không bảo đảm đủ để hoàn thành bài. Kiểm tra mặc định mỗi 60 giây. API dự phòng chỉ chạy khi admin bật.</p><p id="policy-state"></p></div>
+  <div class="accounts-toolbar"><span id="monitor-state" role="status">Đang kết nối…</span><label>Lọc provider<select id="provider-filter"><option value="">Tất cả</option><option value="Codex Plus">Codex Plus</option><option value="API">API</option></select></label>{% if management %}<button id="refresh-accounts" class="button secondary">Kiểm tra quota ngay</button>{% endif %}</div>
+  <div id="accounts-message" role="alert" class="notice error hidden"></div>
+  <div class="table-scroll"><table class="accounts-table"><thead><tr><th>Account Name / ID</th><th>Provider</th><th>Model</th><th>Status</th><th>5h còn lại</th><th>Tuần còn lại</th><th>Reset</th><th>Last Checked</th><th>Jobs Completed</th><th>Chi tiết</th></tr></thead><tbody id="account-table"></tbody></table></div>
+  <section id="accounts-list" class="accounts-grid" aria-label="Danh sách tài khoản"></section>
+  <section id="providers-list" class="accounts-grid"></section>
+  {% if management %}
+  <section class="account-card management-section"><h2>Quota Policy</h2><p>Các ngưỡng dưới đây do ứng dụng đặt, không phải giới hạn chính thức. Policy mặc định tắt để giữ workflow cũ cho đến khi bạn chọn hồ sơ chính.</p>
+    <form id="policy-form" class="policy-grid">
+      <label>Hồ sơ Plus chính<select name="primary_account"></select></label>
+      <label>Cảnh báo (%)<input name="warning" type="number" min="0" max="100" value="20" required></label>
+      <label>Tối thiểu còn lại (%)<input name="minimum" type="number" min="0" max="100" value="13" required></label>
+      <label>Safety margin (%)<input name="safety_margin" type="number" min="0" max="100" value="20" required></label>
+      <label>Chu kỳ (giây)<input name="interval" type="number" min="30" max="3600" value="60" required></label>
+      <label>Độ mới tối đa (giây)<input name="max_age" type="number" min="30" max="3600" value="180" required></label>
+      <label>Dự phòng khi thiếu lịch sử (% điểm)<input name="cold_start_cost" type="number" min="0" max="100" value="20" required></label>
+      <label>Quota dự kiến tối đa/job (% điểm)<input name="max_job_quota" type="number" min="0" max="100" value="50" required></label>
+      <label><input name="enabled" type="checkbox"> Bật policy và hàng đợi</label>
+      <label><input name="allow_api" type="checkbox"> Cho phép API dự phòng có tính phí</label>
+      <button class="button primary" type="submit">Lưu policy</button>
+    </form>
+  </section>
+  <section class="account-card management-section"><h2>API dự phòng</h2><p>OpenAI Responses qua Codex CLI. API có hóa đơn riêng, không dùng quota Plus. Kiểm tra kết nối chỉ xác nhận quyền đọc metadata model.</p><button class="button secondary" id="add-provider">+ Thêm API provider</button></section>
+  <section class="account-card management-section"><h2>Audit log</h2><pre id="audit-log"></pre></section>
+  {% endif %}
+  <section class="account-card management-section"><h2>Job assignments</h2><pre id="assignments-log"></pre></section>
+  <footer class="page-footer">Chỉ truy cập trên máy local · Trang này theo dõi, không chuyển tài khoản của lượt viết bài.</footer>
+</main>
+<dialog id="account-dialog">
+  <form id="account-form">
+    <div class="dialog-heading"><div><div class="eyebrow">HỒ SƠ CODEX</div><h2 id="account-title">Thêm hồ sơ</h2></div><button type="button" id="close-account" class="button secondary">Đóng</button></div>
+    <div class="account-form-body">
+      <div id="account-error" role="alert" class="notice error hidden"></div>
+      <label>Tên hiển thị <span class="required">*</span><input name="name" required maxlength="100" placeholder="Ví dụ: Biên tập viên A"></label>
+      <label>Thư mục CODEX_HOME<input name="home" maxlength="500" placeholder="Để trống để dùng hồ sơ Codex hiện tại"></label>
+      <p class="muted">Chọn đường dẫn tuyệt đối tới thư mục Codex đã đăng nhập. Ứng dụng không đọc hay sao chép token vào cơ sở dữ liệu.</p>
+      <label>Ghi chú<textarea name="notes" maxlength="1000" rows="3" placeholder="Nhóm, mục đích sử dụng…"></textarea></label>
+      <label>Model (trống: dùng lựa chọn của bài)<input name="model" maxlength="100"></label>
+      <label>Cảnh báo khi quota còn lại ≤ (%)<input name="warning" type="number" min="0" max="100" step="1" value="20" required></label>
+      <label class="account-checkbox"><input type="checkbox" name="enabled" checked> Bật kiểm tra định kỳ</label>
+    </div>
+    <div class="dialog-footer"><span>Lưu cấu hình theo dõi trên máy này.</span><button id="save-account" class="button primary" type="submit">Lưu hồ sơ</button></div>
+  </form>
+</dialog>
+<dialog id="provider-dialog"><form id="provider-form"><div class="dialog-heading"><h2>API provider</h2><button id="close-provider" type="button" class="button secondary">Đóng</button></div><div class="account-form-body">
+<div id="provider-error" class="notice error hidden" role="alert"></div>
+<label>Tên<input name="name" maxlength="100" required></label><label>Model API<input name="model" maxlength="100" required placeholder="Nhập model ID được tài khoản API hỗ trợ"></label>
+<label>API key (trống khi sửa: giữ key đã lưu)<input name="api_key" type="password" maxlength="1000" autocomplete="new-password"></label>
+<label>Thứ tự ưu tiên (nhỏ trước)<input name="priority" type="number" min="0" max="1000" value="100" required></label>
+<label>Ngân sách token/job, kiểm tra giữa các stage<input name="max_job_tokens" type="number" min="1000" max="10000000" value="1000000" required></label>
+<label><input name="enabled" type="checkbox"> Bật provider dự phòng</label></div><div class="dialog-footer"><span>API key được mã hóa bằng Windows DPAPI.</span><button class="button primary" type="submit">Lưu provider</button></div></form></dialog>
+<dialog id="history-dialog"><div class="dialog-heading"><h2>Lịch sử quota & workflow</h2><button id="close-history" class="button secondary">Đóng</button></div><div id="history-data"></div></dialog>
+</body>
+</html>

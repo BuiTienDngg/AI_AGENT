@@ -50,10 +50,13 @@ def normalize_objects(rows, frames, confirmed=False):
             'category': raw.get('category') if raw.get('category') in CATEGORIES else 'other',
             'appearance': str(raw.get('appearance', '')).strip(),
             'observed_behavior': str(raw.get('observed_behavior', '')).strip(),
+            **{key:str(raw.get(key,'')).strip() for key in ('name_vi','appearance_vi','observed_behavior_vi')},
             'frame_ids': list(dict.fromkeys(x for x in frame_ids if x in valid_frames)),
             'confidence': 'high' if confirmed else confidence,
             'needs_confirmation': False if confirmed else needs_confirmation,
             'question': '' if confirmed else str(raw.get('question', '')).strip(),
+            **({'question_vi': '' if confirmed else str(raw.get('question_vi', '')).strip()}
+               if 'question_vi' in raw else {}),
             'evidence': 'developer_confirmed' if confirmed else 'video_observed',
             'include_in_article': raw.get('include_in_article', True) is not False,
             'publishable': bool(confirmed or not needs_confirmation),
@@ -127,6 +130,9 @@ def save_review(workdir, inventory, rows, state):
 def ensure_inventory(workdir, analysis, frames, cfg, mode=None):
     inventory = prepare_inventory(workdir, analysis, frames)
     mode = mode or cfg.get('object_review_mode', 'auto')
+    if mode == 'web':
+        from .web_review import require_web_review
+        return require_web_review(workdir, inventory, analysis)
     if mode not in ('auto', 'always', 'never'):
         raise ValueError('Object review mode must be auto, always or never.')
     if mode == 'never' or (mode != 'always' and inventory['review']['state'] in ('confirmed', 'skipped')):
@@ -146,7 +152,7 @@ def ensure_inventory(workdir, analysis, frames, cfg, mode=None):
 
 
 def inventory_digest(inventory):
-    rows = [{k: v for k, v in row.items() if k != 'question'} for row in inventory.get('objects', [])]
+    rows = [{k: v for k, v in row.items() if k not in ('question', 'question_vi','name_vi','appearance_vi','observed_behavior_vi')} for row in inventory.get('objects', [])]
     return hashlib.sha256(json.dumps(rows, sort_keys=True, ensure_ascii=False).encode('utf-8')).hexdigest()
 
 
@@ -156,9 +162,21 @@ def draft_needs_refresh(workdir, inventory):
         return True
     if not inventory.get('objects') and not path.exists():
         return False  # Keep legacy drafts until there is actual object input to incorporate.
-    return load_json(path, default={}).get('objects_sha256') != inventory_digest(inventory)
+    meta = load_json(path, default={})
+    return (meta.get('objects_sha256') != inventory_digest(inventory)
+            or (owner_input_digest(workdir) is not None
+                and meta.get('owner_input_sha256') != owner_input_digest(workdir)))
+
+
+def owner_input_digest(workdir):
+    files = {name: load_json(Path(workdir) / name) for name in ('game_brief.json', 'owner_answers.json')
+             if (Path(workdir) / name).is_file()}
+    if not files:
+        return None
+    return hashlib.sha256(json.dumps(files, sort_keys=True, ensure_ascii=False).encode('utf-8')).hexdigest()
 
 
 def record_article_objects(workdir, inventory):
     save_json(Path(workdir) / 'article_provenance.json',
-              {'objects_sha256': inventory_digest(inventory), 'updated_at': utc_now()})
+              {'objects_sha256': inventory_digest(inventory),
+               'owner_input_sha256': owner_input_digest(workdir), 'updated_at': utc_now()})

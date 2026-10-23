@@ -8,6 +8,7 @@ from .writing import unclear_phrases
 
 TOKEN_PATTERN = re.compile(r'\[\[(SRC\d{3})\]\]')
 BAD_MARKERS = re.compile(r'URL not verified|URL chưa được xác minh|citation needed|TODO|TBD|\[Helsinki Metro bridge\]|DEMO_USER_SUPPLIED_UNVERIFIED', re.I)
+PUBLIC_EVIDENCE_NOTE = re.compile(r'\b(?:not part of the confirmed rules|(?:footage|video|analysis) (?:does not|cannot) (?:confirm|establish))\b', re.I)
 UNREFERENCED_CLAIMS = re.compile(r'\b(?:research(?:ers)? (?:shows?|suggests?|indicates?)|studies (?:show|suggest|indicate)|according to (?:a|the) (?:study|research)|a (?:20\d\d|19\d\d) study)\b', re.I)
 UNSUPPORTED_AUTHORS = re.compile(r'\b(?:we (?:created|developed|built|coded|designed|were inspired)|our (?:original|first|exclusive) (?:idea|inspiration|feature))\b', re.I)
 
@@ -39,7 +40,7 @@ def validate(article, sources, images, frame_manifest, cfg):
     expected = cfg['required_sections']
     headings = [s.get('heading', '') for s in article.get('sections', [])]
     if headings != expected:
-        report('HEADING_STRUCTURE', f'Expected six headings in this order: {expected}; got {headings}', 'sections')
+        report('HEADING_STRUCTURE', f'Expected headings in this order: {expected}; got {headings}', 'sections')
     if not str(article.get('title', '')).strip() or not str(article.get('meta_description', '')).strip():
         report('MISSING_METADATA', 'Need game title and meta_description', 'metadata')
     source_index = {s['id']: s for s in sources if s.get('id') and s.get('verified_metadata') and public_url(s.get('url', ''))}
@@ -66,6 +67,8 @@ def validate(article, sources, images, frame_manifest, cfg):
             report('PRENUMBERED_CITATION', 'Use only [[SRC001]] tokens; Python will number citations.', path)
         if BAD_MARKERS.search(content):
             report('PLACEHOLDER_OR_INTERNAL_NOTE', 'Contains a placeholder or internal metadata string.', path)
+        if PUBLIC_EVIDENCE_NOTE.search(content):
+            report('PUBLIC_EVIDENCE_NOTE', 'Keep evidence limitations in private analysis; describe only the confirmed public-facing facts.', path)
         if UNREFERENCED_CLAIMS.search(content) and not tokens:
             report('ACADEMIC_CLAIM_UNSOURCED', 'A research-based assertion needs a supporting source in this paragraph.', path)
         if UNSUPPORTED_AUTHORS.search(content) and not developer_authorship_allowed(cfg):
@@ -87,14 +90,14 @@ def validate(article, sources, images, frame_manifest, cfg):
                         report('INVALID_IMAGE_CAPTION', 'Use a content/heading caption without URLs, frame IDs or timestamps.', path)
         if re.search(r'https?://\S+', content):
             report('INLINE_URL', 'Use source IDs, not raw URLs in article paragraphs.', path)
-    if body_len < 2200:
+    if body_len < cfg.get('min_article_characters',2200):
         report('THIN_ARTICLE', f'Article too short ({body_len} characters). Expand substantive sections.', 'sections')
     unique_used = len(set(x for x in source_mentions if x in allowed_sources))
     if unique_used < cfg['min_text_sources']:
         report('SOURCE_COVERAGE', f'{unique_used} unique valid text sources; required {cfg["min_text_sources"]}.', 'sections')
     if len(source_mentions) < cfg['min_citation_mentions']:
         report('CITATION_MENTIONS', f'{len(source_mentions)} total citation tokens; required {cfg["min_citation_mentions"]}.', 'sections')
-    if referenced_src_section['Concept and Inspiration'] < 2:
+    if referenced_src_section['Concept and Inspiration'] < cfg.get('min_intro_citations',2):
         report('INTRO_MISSING_CITATIONS', 'Concept and Inspiration needs at least two citations.', 'sections[0]')
     intro_ids = []
     for _, section, para in walk_paragraphs(article):

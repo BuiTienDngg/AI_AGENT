@@ -24,7 +24,7 @@ class ObjectInventoryTests(unittest.TestCase):
              'confidence': 'high', 'needs_confirmation': False, 'question': ''}]}
         save_json(self.work / 'analysis.json', self.analysis)
         save_json(self.work / 'frames.json', self.frames)
-        self.cfg = {**load_json(ROOT / 'config.json'), 'min_detected_objects': 8}
+        self.cfg = {**load_json(ROOT / 'config.json'), 'min_detected_objects': 8,'editorial_profile':'legacy'}
 
     def tearDown(self):
         self.tmp.cleanup()

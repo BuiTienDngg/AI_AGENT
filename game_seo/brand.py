@@ -7,7 +7,7 @@ def developer_authorship_allowed(cfg):
 
 
 def brand_context(cfg):
-    return {
+    result = {
         'publisher': cfg.get('publisher', 'Slope3'),
         'website': cfg.get('brand_website', ''),
         'role': cfg.get('brand_role', 'publisher'),
@@ -32,3 +32,7 @@ def brand_context(cfg):
             'product identity or transfer authorship of another named IP. Keep uncertainty private.'
         ),
     }
+    if cfg.get('editorial_profile')=='gameplay_first_v2':
+        result['concept_narrative_authorized']=False
+        result['concept_direction']='Lead with verified gameplay. Owner-confirmed intent may explain design; blank fields never authorize invented inspiration or story. External context is optional, not a mandatory hook.'
+    return result

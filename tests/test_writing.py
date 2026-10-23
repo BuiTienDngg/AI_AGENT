@@ -17,7 +17,7 @@ class PlainWritingTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.work = Path(self.tmp.name)
         self.article, self.sources, self.images, self.frames = fixtures(self.work)
-        self.cfg = load_json(ROOT / 'config.json')
+        self.cfg = {**load_json(ROOT / 'config.json'),'editorial_profile':'legacy'}
 
     def tearDown(self):
         self.tmp.cleanup()

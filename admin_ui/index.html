@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="office-token" content="{{ office_token }}">
+  <title>Game SEO Office · Quản trị</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+<svg class="icon-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8Z"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 10a9 9 0 1 1 1 7M3 4v6h6m3-4v6l4 2"/></symbol>
+  <symbol id="i-question" viewBox="0 0 24 24"><path d="M8 8a4 4 0 1 1 6 3.5c-2 1-2 2-2 3M12 18h.01"/><circle cx="12" cy="12" r="10"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 6 6"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 16v5h16v-5"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H5v20h14V7Zm0 0v6h5M8 13h8m-8 4h8"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="m15 4 5 5M3 21l5-1L21 7a3.5 3.5 0 0 0-5-5L3 15Z"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+  <symbol id="i-video" viewBox="0 0 24 24"><rect x="2" y="5" width="14" height="14" rx="3"/><path d="m16 9 6-4v14l-6-4Z"/></symbol>
+</defs></svg>
+<aside class="sidebar">
+  <a class="brand" href="/"><span class="brand-mark"><svg class="icon"><use href="#i-grid"/></svg></span><span>Game SEO<span class="brand-sub">OFFICE</span></span></a>
+  <div class="workspace-label">KHÔNG GIAN LÀM VIỆC</div>
+  <nav aria-label="Điều hướng">
+    <button class="nav-link active" data-nav="games" aria-label="Thư viện game" title="Thư viện game"><svg class="icon"><use href="#i-grid"/></svg><span class="nav-label">Thư viện game</span><span id="nav-games" class="nav-count">0</span></button>
+    <button class="nav-link" data-nav="questions" aria-label="AI đang hỏi" title="AI đang hỏi"><svg class="icon"><use href="#i-question"/></svg><span class="nav-label">AI đang hỏi</span><span id="nav-questions" class="nav-count">0</span></button>
+    <button class="nav-link" data-nav="history" aria-label="Lịch sử & kết quả" title="Lịch sử & kết quả"><svg class="icon"><use href="#i-history"/></svg><span class="nav-label">Lịch sử & kết quả</span></button>
+  </nav>
+  <a class="nav-link" href="/accounts" title="Codex Accounts"><svg class="icon"><use href="#i-grid"/></svg><span class="nav-label">Codex Accounts</span></a>
+  <div class="sidebar-bottom"><span class="live-dot"></span> Chạy trên máy của bạn<p>Codex · Tài khoản ChatGPT<br>Word tiếng Anh & tiếng Việt</p></div>
+</aside>
+<div class="workspace">
+  <div class="topbar"><span>Không gian biên tập <span class="slash">/</span> <strong id="breadcrumb">Thư viện game</strong></span><span class="local-pill"><span class="live-dot"></span> LOCAL WORKSPACE</span></div>
+  <main>
+    <header class="page-heading"><div><div class="eyebrow">TỪ GAMEPLAY ĐẾN BÀI VIẾT</div><h1 id="page-title">Thư viện game</h1><p id="page-description">Ý tưởng của bạn. Câu chuyện của game. Hai bản Word sẵn sàng để duyệt.</p></div><button class="button primary" id="new-game"><svg class="icon"><use href="#i-plus"/></svg>Thêm game mới</button></header>
+    <div id="connection-error" role="alert" class="notice error hidden">Mất kết nối với máy chủ local. Kiểm tra terminal đang chạy trang quản trị.</div>
+    <div id="dependency-warning" class="notice warning hidden"></div>
+    <section id="stats" class="stats" aria-label="Tổng quan"></section>
+    <section id="execution-panel" class="execution-panel hidden" aria-label="Lựa chọn model">
+      <div><strong>Model cho lượt chạy mới</strong><p>Lưu riêng theo từng lượt để so sánh bài viết.</p></div>
+      <label>Model GPT<select id="run-model" aria-label="Model GPT"></select></label>
+      <label id="custom-model-label" class="hidden">ID model<input id="custom-model" placeholder="gpt-..." maxlength="95"></label>
+      <label>Mức suy luận<select id="run-effort" aria-label="Mức suy luận"></select></label>
+    </section>
+    <section class="collection">
+      <div class="collection-toolbar"><div class="section-title"><h2 id="collection-title">Tất cả game</h2><span id="collection-count"></span></div><div class="filters"><label class="search"><svg class="icon"><use href="#i-search"/></svg><input id="search" type="search" placeholder="Tìm game hoặc lượt chạy…" aria-label="Tìm game"></label><select id="status-filter" aria-label="Lọc trạng thái"><option value="">Mọi trạng thái</option><option value="running">Đang chạy</option><option value="waiting">Chờ trả lời</option><option value="completed">Đã hoàn tất</option><option value="draft">Chưa chạy</option><option value="failed">Cần kiểm tra</option><option value="stopped">Đã dừng</option></select></div></div>
+      <div id="content" aria-live="polite"><div class="empty"><span class="spinner"></span><p>Đang mở thư viện…</p></div></div>
+    </section>
+    <footer class="page-footer"><span id="model-info">Codex CLI</span><span>EN → VI · Chỉ xuất 2 file Word · Giữ nguồn và giấy phép ảnh</span></footer>
+  </main>
+</div>
+
+<dialog id="game-dialog" class="game-dialog">
+  <form id="game-form">
+    <div class="dialog-heading"><div><div class="eyebrow">THÔNG TIN SẢN PHẨM</div><h2 id="form-title">Thêm game mới</h2><p>Lưu đầu vào trước, chạy viết bài khi bạn sẵn sàng.</p></div><button type="button" class="icon-button close-game" aria-label="Đóng"><svg class="icon"><use href="#i-close"/></svg></button></div>
+    <div class="form-body">
+      <div id="form-error" class="notice error hidden" role="alert"></div>
+      <section class="form-section"><div class="section-number">01</div><div class="form-section-content"><h3>Game của bạn</h3><p class="muted">Tên và địa chỉ chính thức sẽ được dùng trong bài.</p>
+        <label>Tên game <span class="required">*</span><input name="name" maxlength="160" placeholder="Ví dụ: Block Blast" required autocomplete="off"></label>
+        <div class="two-columns"><label>Site game <span class="required">*</span><input name="site_url" type="url" placeholder="https://slope3.com/" required></label><label>URL chơi game <span class="required">*</span><input name="game_url" type="url" placeholder="https://slope3.com/ten-game" required></label></div>
+      </div></section>
+      <section class="form-section"><div class="section-number">02</div><div class="form-section-content"><h3>Video gameplay <span class="required">*</span></h3><p class="muted">AI xem các khung hình trải đều, không gửi toàn bộ video vào model.</p>
+        <input type="file" id="video-input" accept=".mp4,.mov,.mkv,.webm,.avi,.m4v" class="visually-hidden">
+        <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Chọn hoặc kéo thả video gameplay"><span class="upload-symbol"><svg class="icon"><use href="#i-upload"/></svg></span><strong id="drop-title">Kéo thả video vào đây</strong><span id="drop-meta">hoặc bấm để chọn · MP4, MOV, MKV, WEBM · tối đa 4 GB</span></div>
+        <video id="video-preview" class="video-preview hidden" controls preload="metadata"></video>
+      </div></section>
+      <section class="form-section"><div class="section-number">03</div><div class="form-section-content"><h3>Định hướng bài viết <span class="optional">Tùy chọn</span></h3><p class="muted">Có nội dung: AI bám theo sườn bạn nhập. Để trống: AI phát triển ý tưởng phù hợp với gameplay.</p>
+        <label>Ý tưởng & nguồn gốc<textarea name="idea_origin" rows="3" maxlength="12000" placeholder="Điều gì khơi gợi ý tưởng game? Bạn muốn mở bài từ câu chuyện nào?"></textarea></label>
+        <label>Cốt truyện<textarea name="story" rows="3" maxlength="12000" placeholder="Bối cảnh, nhân vật, mục tiêu… Nếu game không có cốt truyện, hãy ghi rõ."></textarea></label>
+        <label>Phong cách game<textarea name="game_style" rows="3" maxlength="12000" placeholder="Ví dụ: màu tươi sáng, hình khối đơn giản, nhịp chơi thư giãn…"></textarea></label>
+      </div></section>
+      <section class="form-section"><div class="section-number">04</div><div class="form-section-content"><h3>Điều khiển đã xác nhận</h3><p class="muted">Mô tả thao tác → quy luật → kết quả. Nếu không hỗ trợ một nền tảng, ghi “Không hỗ trợ”.</p>
+        <div class="two-columns"><label>Trên PC <span class="required">*</span><textarea name="controls_pc" rows="4" maxlength="12000" placeholder="Nhấn giữ chuột vào khối, kéo lên bàn rồi thả…" required></textarea></label><label>Trên điện thoại <span class="required">*</span><textarea name="controls_mobile" rows="4" maxlength="12000" placeholder="Chạm giữ khối, kéo bằng ngón tay rồi thả…" required></textarea></label></div>
+      </div></section>
+    </div>
+    <div class="dialog-footer"><span id="save-hint">Lưu local · Có thể chỉnh sửa sau</span><progress id="upload-progress" class="hidden" max="100" value="0" aria-label="Tiến độ tải video"></progress><div><button type="button" class="button secondary close-game">Hủy</button><button type="submit" id="save-game" class="button primary">Lưu game <svg class="icon"><use href="#i-check"/></svg></button></div></div>
+  </form>
+</dialog>
+
+<dialog id="saved-answers-dialog" class="saved-answers-dialog">
+  <div class="dialog-heading"><div><div class="eyebrow">GHI NHỚ THEO GAME</div><h2 id="saved-answers-title">Câu hỏi đã lưu</h2><p>Câu trả lời đã chốt được dùng lại khi AI hỏi đúng nội dung ở lượt mới.</p></div><button type="button" id="close-saved-answers" class="icon-button" aria-label="Đóng"><svg class="icon"><use href="#i-close"/></svg></button></div>
+  <div id="saved-answers-error" class="notice error hidden" role="alert"></div>
+  <div id="saved-answers-list" class="saved-answers-list"></div>
+  <div class="dialog-footer"><span>Chỉnh sửa ở đây áp dụng cho lượt chạy mới. Lượt cũ giữ bản đã dùng.</span></div>
+</dialog>
+
+<dialog id="job-dialog" class="job-dialog">
+  <div class="dialog-heading"><div><div class="eyebrow">KHÔNG GIAN BÀI VIẾT</div><h2 id="job-title">Lượt chạy</h2><p id="job-subtitle"></p></div><button type="button" id="close-job" class="icon-button" aria-label="Đóng"><svg class="icon"><use href="#i-close"/></svg></button></div>
+  <div id="job-banner"></div>
+  <div class="job-tabs" role="tablist"><button id="tab-progress" role="tab" data-tab="progress" class="active">Tiến độ & kết quả</button><button id="tab-questions" role="tab" data-tab="questions">Câu hỏi & đối tượng <span id="question-count"></span></button><button id="tab-input" role="tab" data-tab="input">Đầu vào đã dùng</button><button id="tab-answers" role="tab" data-tab="answers">Lịch sử trả lời</button></div>
+  <div id="job-error" role="alert" class="notice error hidden"></div>
+  <div id="job-content" class="job-body"></div>
+  <div class="dialog-footer"><span id="job-footer-note">Đóng cửa sổ này vẫn tiếp tục chạy.</span><div id="job-actions"></div></div>
+</dialog>
+<dialog id="confirm-dialog" class="confirm-dialog"><h2 id="confirm-title"></h2><p id="confirm-text"></p><div class="confirm-actions"><button class="button secondary" id="confirm-cancel">Hủy</button><button class="button danger" id="confirm-ok">Xóa game</button></div></dialog>
+<div id="toast" role="status" class="toast hidden"></div>
+</body></html>

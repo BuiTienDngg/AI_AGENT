@@ -15,7 +15,7 @@ class WindowsCompatibilityTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.folder = Path(self.tmp.name)
         self.article, self.sources, self.images, self.frames = fixtures(self.folder)
-        self.cfg = load_json(ROOT / 'config.json')
+        self.cfg = {**load_json(ROOT / 'config.json'),'editorial_profile':'legacy'}
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -86,6 +86,7 @@ class WindowsCompatibilityTests(unittest.TestCase):
         parser.add_argument('--json', action='store_true')
         parser.add_argument('--image', nargs='+', action='append')
         parser.add_argument('prompt', nargs='?')
+        parser.add_argument('--model')
         image_paths = [self.frames['frames'][i]['path'] for i in range(2)]
 
         def execute(command, **kwargs):

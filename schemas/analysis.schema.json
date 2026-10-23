@@ -23,6 +23,10 @@
         "type": "string"
       }
     },
+    "unverified_mechanics_vi": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
     "research_topics": {
       "type": "array",
       "items": {
@@ -53,6 +57,9 @@
           "name": {
             "type": "string"
           },
+          "name_vi": {"type": "string"},
+          "appearance_vi": {"type": "string"},
+          "observed_behavior_vi": {"type": "string"},
           "category": {
             "type": "string",
             "enum": [
@@ -93,18 +100,25 @@
           },
           "question": {
             "type": "string"
+          },
+          "question_vi": {
+            "type": "string"
           }
         },
         "required": [
           "id",
           "name",
+          "name_vi",
+          "appearance_vi",
+          "observed_behavior_vi",
           "category",
           "appearance",
           "observed_behavior",
           "frame_ids",
           "confidence",
           "needs_confirmation",
-          "question"
+          "question",
+          "question_vi"
         ]
       }
     }
@@ -115,6 +129,7 @@
     "gameplay_summary",
     "observed_facts",
     "unverified_mechanics",
+    "unverified_mechanics_vi",
     "research_topics",
     "image_search_topics",
     "video_frame_ids",

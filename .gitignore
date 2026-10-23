@@ -1,5 +1,7 @@
 .venv/
 runs/
+maintenance_history/
 __pycache__/
 *.pyc
 .pytest_cache/
+local_admin_data/

@@ -10,6 +10,16 @@
 
 **Đầu ra từ 21/10/2026:** thư mục `output/` chỉ tạo hai `.docx`, không tạo bài HTML/Markdown hoặc sao chép thêm `assets/`. File nội bộ JSON và báo cáo token vẫn được giữ để truy vết nguồn, kiểm tra và chạy tiếp. Bỏ định dạng xuất giúp gọn file; HTML/Markdown vốn do Python tạo nên gần như không tiết kiệm token AI. Muốn xuất lại bài đã có mà không viết lại, dùng `python run.py export --run-dir ".\runs\ten_bai"`; bản dịch có SHA khớp sẽ được dùng lại, không gọi thêm Codex.
 
+## Dùng nhanh cho người không viết code
+
+**Biên tập nội dung:** phần Ý tưởng và cảm hứng dùng giọng mềm mại, giàu liên tưởng nhưng nối ý rõ; Gameplay giải thích mục tiêu, luật thành công/thất bại và hậu quả đã xác nhận; Điểm nổi bật nêu khác biệt cụ thể và lợi ích người chơi. Luật chưa rõ được hỏi chủ game, không tự bịa phần thưởng/hình phạt. Tên, hình dáng và vai trò đối tượng có bản dịch VI cạnh bản gốc; bản dịch chỉ phục vụ hiển thị và không biến suy đoán thành xác nhận.
+
+**Bộ đăng site:** sau khi xuất bài thành công, mở thư mục result trong lượt chạy. Có hai Word EN/VI, ảnh dùng trong bài được đặt tên theo caption, bảng đối chiếu tên ảnh EN/VI và nguồn/giấy phép. Trên admin có nút **Bộ đăng site (.zip)**. Không gọi thêm AI để tạo bộ này.
+
+**Codex Accounts + quota policy:** theo dõi tại /accounts, thiết lập admin tại /admin. Có hàng đợi bền vững và API dự phòng tùy chọn; cần admin chọn hồ sơ chính và bật policy. Xem [cấu hình, API, migration và giới hạn](CODEX_CAPACITY_VI.md).
+
+Nhấp đúp **CAI_DAT.bat** để cài lần đầu, sau đó **CHAY_ADMIN.bat** để chạy và tự mở trang quản trị. Xem [hướng dẫn nhấp đúp và thư mục output](HUONG_DAN_NHANH.md). Lượt admin mới lưu theo tên game + ngày-tháng-năm + giờ-phút-giây.
+
 ## Yêu cầu cài đặt (Windows, PowerShell / VS Code)
 
 1. Python 3.10+, [FFmpeg](https://ffmpeg.org/download.html) (cả `ffmpeg` và `ffprobe` nằm trong PATH), Codex CLI. Để cài Codex CLI từ npm (cần Node.js):
@@ -196,3 +206,5 @@ python run.py usage --run-dir ".\runs\subway"
 ```
 
 `--resume` giữ dữ liệu usage đã đo trước đó và cộng thêm những lượt Codex phát sinh sau khi chạy tiếp. Nếu sửa bản EN đã duyệt, bước dịch sẽ kiểm tra SHA-256 của `article.json`, không tái sử dụng bản dịch cũ.
+
+**Lệnh run** .\start_windows.ps1 -Video "C:\Users\green\Downloads\Video Project 8.mp4" -Out ".\runs\video_project_8_optimized"

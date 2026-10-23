@@ -17,7 +17,7 @@ from game_seo.qa import validate, apply_patches
 from game_seo.export import export_all
 from game_seo.translation import validate_translation
 from game_seo.usage import print_usage
-from game_seo.runner import codex_call, filter_notes, build_repair_context, attach_diagnostics
+from game_seo.runner import codex_call, filter_notes, build_repair_context, attach_diagnostics, editorial_accepted
 from game_seo.objects import (ensure_inventory, prepare_inventory, review_reasons, save_review,
                               draft_needs_refresh, record_article_objects, ObjectReviewPending)
 
@@ -28,6 +28,22 @@ def config():
 
 def collect(run, cfg):
     analysis = load_json(run / 'analysis.json')
+    # A local research plan can correct discovery queries without invalidating
+    # reviewed gameplay objects or spending another vision call.
+    plan = load_json(run / 'research_plan.json', default={})
+    analysis = dict(analysis)
+    cfg = dict(cfg)
+    for key, field in [('text_queries', 'research_topics'), ('image_queries', 'image_search_topics')]:
+        if key in plan:
+            queries = plan[key]
+            if not isinstance(queries, list) or not queries or any(not isinstance(q, str) or not q.strip() for q in queries):
+                raise ValueError(f'research_plan.json {key} must be a nonempty list of query strings.')
+            analysis[field] = queries
+    if 'academic_queries' in plan:
+        queries = plan['academic_queries']
+        if not isinstance(queries, list) or any(not isinstance(q, str) or not q.strip() for q in queries):
+            raise ValueError('research_plan.json academic_queries must be a list of query strings (or [] when no academic claims are planned).')
+        cfg['research_academic_queries'] = queries
     print('[2/7] Finding real text sources (Wikipedia + OpenAlex) ...', flush=True)
     sources = collect_text_sources(analysis, cfg, run)
     print(f'      {len(sources)} source candidates collected.', flush=True)
@@ -52,7 +68,7 @@ def ensure_vietnamese_translation(run, article, cfg, resume=False):
         meta = load_json(meta_file)
         if meta.get('en_article_sha256') == expected_sha:
             candidate = load_json(file)
-            check = validate_translation(article, candidate)
+            check = validate_translation(article, candidate,localize_title=cfg.get('editorial_profile')=='gameplay_first_v2')
             if check['pass']:
                 save_json(run / 'translation_qa.json', check)
                 print('      Reusing verified VI translation for unchanged approved EN draft.', flush=True)
@@ -61,7 +77,7 @@ def ensure_vietnamese_translation(run, article, cfg, resume=False):
     for attempt in range(1, max_tries + 1):
         print(f'      Translating approved EN to Vietnamese ({attempt}/{max_tries}) ...', flush=True)
         translated = codex_call('translate', run, cfg)
-        check = validate_translation(article, translated)
+        check = validate_translation(article, translated,localize_title=cfg.get('editorial_profile')=='gameplay_first_v2')
         save_json(run / 'translation_qa.json', check)
         if check['pass']:
             save_json(meta_file, {'en_article_sha256': expected_sha, 'translation_file': file.name,
@@ -74,6 +90,9 @@ def ensure_vietnamese_translation(run, article, cfg, resume=False):
 def run_all(video, output_dir, cfg, resume=False, game_title_override=None, object_review=None):
     run = Path(output_dir).expanduser().resolve()
     run.mkdir(exist_ok=True, parents=True)
+    from game_seo.editorial import enabled,policy,ledger,retain_brief,chief,review_gate,assert_preserved
+    cfg=policy(run,cfg)
+    modern=enabled(cfg)
     print(f'Working folder: {run}', flush=True)
     if not resume or not (run / 'frames.json').is_file():
         print('[1/7] Extracting and labeling video frames ...', flush=True)
@@ -94,12 +113,24 @@ def run_all(video, output_dir, cfg, resume=False, game_title_override=None, obje
     else:
         sources = load_json(run / 'sources.json')['sources']
         images = load_json(run / 'images.json')['images']
+    if modern:
+        evidence=ledger(run,analysis,inventory,frames,sources)
     print('[4/7] Codex building evidence notes ...', flush=True)
     if not resume or not (run / 'research_notes.json').is_file():
         raw = codex_call('notes', run, cfg)
         clean, rejected = filter_notes(raw, sources)
+        if modern:
+            brief=retain_brief(raw,evidence,sources)
+            accepted={r['source_id'] for r in brief['research_filter'] if r['include']}
+            for category in ('context','player_psychology','genre_and_competitors'):
+                clean[category]=[row for row in clean[category] if row['source_id'] in accepted]
+            clean['editorial_brief']=brief
+            save_json(run/'editorial_brief.json',brief)
         save_json(run / 'research_notes.json', clean)
         save_json(run / 'rejected_notes.json', rejected)
+    if object_review == 'web':
+        from game_seo.web_review import require_notes_review
+        require_notes_review(run, load_json(run / 'research_notes.json'))
     print('[5/7] Codex writing full en-US article ...', flush=True)
     if not resume or draft_needs_refresh(run, inventory):
         if (run / 'article.json').is_file():
@@ -111,13 +142,19 @@ def run_all(video, output_dir, cfg, resume=False, game_title_override=None, obje
     print('[6/7] Deterministic QA + independent editorial review ...', flush=True)
     report = validate(article, sources, images, frames, cfg)
     save_json(run / 'qa_report.json', report)
-    review = codex_call('critique', run, cfg)
+    def critical_review(round_number):
+        if not modern:
+            return codex_call('critique',run,cfg)
+        literary=codex_call('literary',run,cfg)
+        factual=codex_call('factual',run,cfg)
+        return chief(run,article,literary,factual,round_number)
+    review = critical_review(0)
     attached = attach_diagnostics(run, report, review)
     print(f"      Initial QA: {'PASS' if attached['overall_pass'] else 'FAIL'} {report['summary']}", flush=True)
     rounds = 0
     while not attached['overall_pass'] and rounds < cfg['max_repair_rounds']:
         rounds += 1
-        context = build_repair_context(article, report, review, sources, images, frames['frames'])
+        context = build_repair_context(article, report, review, sources, images, frames['frames'], cfg=cfg)
         save_json(run / 'repair_context.json', context)
         if context['unrepairable'] or not context['allowed_edits']:
             print('      Structural failures require human/editorial intervention; stopping.', flush=True)
@@ -128,13 +165,16 @@ def run_all(video, output_dir, cfg, resume=False, game_title_override=None, obje
         for edit in edits.get('edits', []):
             if edit.get('path') not in allowed:
                 raise RuntimeError(f"Codex patch targeted an unapproved paragraph {edit.get('path')}.")
-        article, changed = apply_patches(article, edits)
+        revised, changed = apply_patches(article, edits)
+        if modern:
+            assert_preserved(article,revised,changed)
+        article=revised
         save_json(run / 'article.json', article)
         save_json(run / f'repair_round_{rounds}.json', {'changed': changed, 'edits': edits})
         report = validate(article, sources, images, frames, cfg)
         save_json(run / 'qa_report.json', report)
         # A final fresh critical review prevents subjective issues from bypassing editorial review.
-        review = codex_call('critique', run, cfg)
+        review = critical_review(rounds)
         attached = attach_diagnostics(run, report, review)
         print(f"      QA after repair {rounds}: {'PASS' if attached['overall_pass'] else 'FAIL'} {report['summary']}", flush=True)
     if not attached['overall_pass']:
@@ -142,8 +182,33 @@ def run_all(video, output_dir, cfg, resume=False, game_title_override=None, obje
         return 2
     print('[7/8] Translating approved EN article into Vietnamese ...', flush=True)
     translation = ensure_vietnamese_translation(run, article, cfg, resume=resume)
+    if modern:
+        local=review_gate(codex_call('localization',run,cfg),translation,'localization')
+        while not local['pass_editorial'] and rounds<cfg['max_repair_rounds']:
+            context=build_repair_context(translation,{'pass':True,'issues':[]},local,sources,images,frames['frames'],cfg=cfg)
+            if not context.get('allowed_edits'):
+                break
+            rounds+=1
+            save_json(run/'repair_context.json',context)
+            edits=codex_call('localize_repair',run,cfg)
+            allowed={row['path'] for row in context['allowed_edits']}
+            if any(e['path'] not in allowed for e in edits.get('edits',[])):
+                raise ValueError('Unauthorized Vietnamese rewrite path.')
+            revised,changed=apply_patches(translation,edits)
+            assert_preserved(translation,revised,changed)
+            if not validate_translation(article,revised,localize_title=True)['pass']:
+                raise ValueError('Vietnamese rewrite broke evidence alignment.')
+            save_json(run/f'localization_before_{rounds}.json',translation)
+            translation=revised
+            save_json(run/'translation_vi.json',translation)
+            local=review_gate(codex_call('localization',run,cfg),translation,'localization')
+        local.update(en_article_sha256=article_hash(article),vi_article_sha256=article_hash(translation))
+        save_json(run/'localization_qa.json',local)
+        if not local['pass_editorial']:
+            print('STOPPED: bilingual semantic/editorial review did not approve. See localization_qa.json.',flush=True)
+            return 2
     print('[8/8] Exporting two aligned Word documents (EN + VI) ...', flush=True)
-    results = export_all(article, sources, images, frames, run, translation_vi=translation)
+    results = export_all(article, sources, images, frames, run, translation_vi=translation,**({'editorial_v2':True} if modern else {}))
     save_json(run / 'export_manifest.json', {'files': results, 'qa_summary': report['summary'],
                                              'translation_qa': 'translation_qa.json', 'token_report': 'token_usage.json'})
     for kind, filename in results.items():
@@ -188,7 +253,7 @@ def cli():
     exp = subs.add_parser('export')
     exp.add_argument('--run-dir', required=True)
     args = p.parse_args()
-    cfg = config()
+    cfg = {**config(), 'quota_tracking': True}
     if args.cmd == 'doctor':
         doctor(); return 0
     if args.cmd == 'usage':
@@ -215,6 +280,10 @@ def cli():
         finally:
             print_usage(dst)
     work = Path(args.run_dir).resolve()
+    from game_seo.editorial import policy,enabled
+    frozen=load_json(work/'admin_config.json',default={})
+    marker=load_json(work/'editorial_policy.json',default={})
+    cfg=policy(work,{**cfg,'editorial_profile':frozen.get('editorial_profile',marker.get('profile','legacy'))})
     src = load_json(work / 'sources.json')['sources']
     imgs = load_json(work / 'images.json')['images']
     frames = load_json(work / 'frames.json')
@@ -230,11 +299,15 @@ def cli():
         return 0 if report['pass'] else 2
     # Export should not override an earlier editorial rejection.
     critique = load_json(work / 'critique.json', default={'pass_editorial': False, 'issues': []})
-    if not report['pass'] or not critique.get('pass_editorial', False) or any(x.get('severity') == 'error' for x in critique.get('issues', [])):
+    if not report['pass'] or not editorial_accepted(critique):
         raise RuntimeError('Refusing export: deterministic QA or editorial critique failed.')
     try:
         translation = ensure_vietnamese_translation(work, article, cfg, resume=True)
-        results = export_all(article, src, imgs, frames, work, translation_vi=translation)
+        if enabled(cfg):
+            local=load_json(work/'localization_qa.json',default={})
+            if not local.get('pass_editorial') or local.get('en_article_sha256')!=article_hash(article) or local.get('vi_article_sha256')!=article_hash(translation):
+                raise RuntimeError('Refusing export: bilingual editorial approval is missing or stale.')
+        results = export_all(article, src, imgs, frames, work, translation_vi=translation,**({'editorial_v2':True} if enabled(cfg) else {}))
         save_json(work / 'export_manifest.json', {'files': results, 'qa_summary': report['summary'],
                                                 'translation_qa': 'translation_qa.json', 'token_report': 'token_usage.json'})
         print(results)

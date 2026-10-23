@@ -104,10 +104,25 @@ def retain_brief(notes, evidence, sources):
 
 
 def review_gate(review, article, role):
-    from .qa import get_para_by_path
-    issues=list(review.get('issues',[]))
+    from .qa import get_para_by_path, normalize_paragraph_path
+    issues=[]
+    for issue in review.get('issues',[]):
+        if not isinstance(issue,dict):
+            issues.append({'path':'','severity':'error','problem':'Malformed critic issue.',
+                           'suggestion':'Return a structured issue with a valid paragraph path.'})
+            continue
+        issue=dict(issue)
+        path=issue.get('path','')
+        if path:
+            try:
+                path=normalize_paragraph_path(path)
+                get_para_by_path(article,path)
+                issue['path']=path
+            except (ValueError,KeyError,IndexError,TypeError):
+                issue.update(path='',severity='error',problem='Invalid reviewer issue path: '+str(path),
+                             suggestion='Use an existing article paragraph path.')
+        issues.append(issue)
     scores=review.get('scores',[])
-    metrics=[s.get('metric') for s in scores]
     for metric in REVIEW_METRICS[role]:
         entries=[s for s in scores if s.get('metric')==metric]
         if len(entries)!=1:
@@ -115,12 +130,26 @@ def review_gate(review, article, role):
             continue
         row=entries[0];value=row.get('score')
         evidence=row.get('evidence',[])
-        valid_evidence=bool(evidence)
-        for quote in evidence:
-            try:
-                valid_evidence &= bool(quote.get('quote')) and quote['quote'] in get_para_by_path(article,quote['path'])['text']
-            except (KeyError,IndexError,ValueError,TypeError):
-                valid_evidence=False
+        valid_evidence=isinstance(evidence,list) and bool(evidence)
+        canonical_evidence=[]
+        if valid_evidence:
+            for quote in evidence:
+                try:
+                    if not isinstance(quote,dict) or not isinstance(quote.get('quote'),str):
+                        valid_evidence=False
+                        break
+                    path=normalize_paragraph_path(quote['path'])
+                    fragment=quote['quote'].strip()
+                    if not fragment or fragment not in get_para_by_path(article,path)['text']:
+                        valid_evidence=False
+                        break
+                    canonical_evidence.append({'path':path,'quote':fragment})
+                except (KeyError,IndexError,ValueError,TypeError):
+                    valid_evidence=False
+                    break
+        if valid_evidence:
+            row['evidence']=canonical_evidence
+            evidence=canonical_evidence
         if not isinstance(value,(int,float)) or isinstance(value,bool) or not 0<=value<=10 or not valid_evidence:
             issues.append({'path':'','severity':'error','problem':'Invalid score/evidence: '+metric,'suggestion':'Supply actual paragraph quotations, not an assigned target score.'})
         elif value<RUBRIC[metric]:

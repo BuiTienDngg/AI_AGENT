@@ -68,14 +68,16 @@
                   "type": "string"
                 },
                 "quote": {
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 1
                 }
               },
               "required": [
                 "path",
                 "quote"
               ]
-            }
+            },
+            "minItems": 1
           }
         },
         "required": [

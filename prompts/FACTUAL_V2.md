@@ -3,3 +3,5 @@ Score exact metrics accuracy and seo_integration, with actual paragraph paths an
 Check every creative detail against fact_ledger, owner inputs, sources and actual registered frames. Unsupported gameplay, origin, lore, sounds, rewards, penalties or named competitor claims block approval even with excellent prose.
 Check source entailment/relevance, screenshot purpose/caption accuracy, story status, exact controls, objective/outcome coverage, natural keywords, useful localized-ready metadata and logic. External context is optional; do not demand four sources, six citations or Commons images.
 Identify exact failed paragraphs and factual corrections. Quote affected text and offer evidence-grounded changes, not invented replacement facts. Pass only when factuality and SEO both meet targets with evidence.
+
+For EACH metric, evidence must contain at least one real article paragraph path and a verbatim contiguous quotation from that paragraph. Use canonical sections[N].paragraphs[N] or subsections paths, not article.json.sections paths. A numeric target, description of evidence, paraphrase or empty evidence is invalid. Validate evidence before returning JSON.
